@@ -1,0 +1,15 @@
+mixin section(items)
+    .grid-33
+        .app--section
+            ul(class!=attributes.class)
+                if block
+                    block
+
++section()(class="app--tweet--list")
+    include tweets.pug
+
++section()(class="app--user--list")
+    include followers.pug
+
++section()(class="app--message--list")
+    include messages.pug

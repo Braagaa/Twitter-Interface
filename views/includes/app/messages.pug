@@ -1,0 +1,19 @@
+- const conversations = [{name: 'Hannah', messages: [{isMe: true, imageURL: 'images/m-spore.png', text: 'Hey!', timestamp: '1 hour ago'}, {isMe: false, imageURL: 'images/f-spore.png', text: 'Lunch?', timestamp: '2 hours ago'}]}, {name: 'Todd', messages: [{isMe: true, imageURL: 'images/m-spore.png', text: 'Hey man', timestamp: '1 hour ago'}, {isMe: false, imageURL: 'images/f-spore.png', text: 'You good?', timestamp: '2 hours ago'}]}];
+
+mixin messageHTML(userClass, {imageURL, text, timestamp})
+    li(class=userClass)
+        .app--avatar(style=`background-image: url(${imageURL})`)
+            img(src=`${imageURL}`)
+        p.app--message--text= text
+        p.app--message--timestamp= timestamp
+
+each conversation in conversations
+    li
+        h3 Conversation with 
+            a= `${conversation.name}`
+        ul.app--message--conversation
+            each message in conversation.messages
+                if (message.isMe) 
+                    +messageHTML('app--message--me', message)
+                else
+                    +messageHTML('app--message', message)

@@ -1,0 +1,12 @@
+mixin section(header)
+    .grid-33
+        .app--section--heading
+            if (block)
+                block
+            h2= header
+
+.app--section--header
+    +section('Timeline')
+    +section('Following')
+        strong 129
+    +section('Direct Messages')
