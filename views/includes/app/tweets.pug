@@ -10,15 +10,17 @@ mixin tooltipItem(appClass,tooltipText)
             span.tooltip= tooltipText
             block
 
-each tweet in [1, 2]
+each tweet in tweets
     li
-        strong.app--tweet--timestamp 4h
+        strong.app--tweet--timestamp= tweet.created_at
         a.app--tweet--author
-            .app--avatar(style="background-image: url(images/f-spore.png)")
-                img(src="images/f-spore.png")
-            h4 Name
-            |  @testingname
-        p Testing
+            .app--avatar(style=`background-image: url(${tweet.user.profile_image_url_https})`)
+                //img(src="images/f-spore.png")
+            h4= tweet.user.name
+            |  
+            |
+            = `@${tweet.user.screen_name}`
+        p= tweet.text
         ul.app--tweet--actions(class="circle--list--inline")
             +tooltipItem('app--reply', 'Reply')
                 svg(viewBox="0 0 38 28")&attributes(commonSVG)
@@ -27,8 +29,8 @@ each tweet in [1, 2]
                 svg(id="Layer_1" viewBox="0 0 50 28")&attributes(commonSVG)
                     path(d=retweetPath1)
                     path(d=retweetPath2)
-                strong  75
+                strong= ` ${tweet.retweet_count}`
             +tooltipItem('app--like', 'Like')
                 svg(viewBox="0 0 35 28")&attributes(commonSVG)
                     path.st0(d=likePath)
-                strong  12
+                strong= ` ${tweet.favorite_count}`
