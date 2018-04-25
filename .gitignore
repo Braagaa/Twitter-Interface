@@ -1,3 +1,4 @@
 node_modules/
 api-with-node-v1/
 config.js
+*.swp
