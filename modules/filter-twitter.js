@@ -1,26 +1,20 @@
 const R = require('ramda');
 const tweetTime = require('./tweet-time');
 
+const makeImagesBigger = R.replace(/_normal./, '_bigger.');
+const appendAt = R.pipe(R.prepend('@'), R.join(''));
+
 const evolvedTweet = {
     created_at: tweetTime,
     user: {
-        profile_image_url_https: R.replace(/_normal./, '_bigger.')
+        screen_name: appendAt,
+        profile_image_url_https: makeImagesBigger
     }
-}
+};
 
-const testTweet = {
-    created_at: R.pipe(R.prop('created_at'), tweetTime),
-    text: R.prop('text'),
-    user: {
-        name: R.path(['user', 'name']),
-        screen_name: R.path(['user', 'screen_name']),
-        profile_image_url_https: R.pipe(
-            R.path(['user', 'profile_image_url_https']), 
-            R.replace(/_normal./, '_bigger.')
-        )
-    },
-    retweet_count: R.prop('retweet_count'),
-    favorite_count: R.prop('favorite_count')
+const evolvedFriend = {
+    screen_name: appendAt,
+    profile_image_url_https: makeImagesBigger
 };
 
 const checkTweet = R.pipe(
@@ -33,4 +27,15 @@ const checkTweets = R.pipe(
     R.map(checkTweet)
 );
 
-module.exports = {checkTweets};
+const getFriendsCount = R.pipe(
+    R.prop('data'),
+    R.nth(0),
+    R.path(['user', 'friends_count'])
+);
+
+const checkFriends = R.pipe(
+    R.path(['data', 'users']),
+    R.map(R.evolve(evolvedFriend))
+);
+
+module.exports = {checkTweets, checkFriends, getFriendsCount};

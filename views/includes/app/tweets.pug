@@ -19,7 +19,7 @@ each tweet in tweets
             h4= tweet.user.name
             |  
             |
-            = `@${tweet.user.screen_name}`
+            = tweet.user.screen_name
         p= tweet.text
         ul.app--tweet--actions(class="circle--list--inline")
             +tooltipItem('app--reply', 'Reply')
