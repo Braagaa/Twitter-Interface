@@ -19,4 +19,19 @@ const tweetTime = function(timestamp) {
         ? date.format('MMM D') : date.format('MMM D YYYY');
 }
 
-module.exports = tweetTime;
+const dmTime = function(timestamp) {
+    const now = m(new Date());
+    const date = m(new Date(timestamp));
+    const diff = now.diff(date);
+    const duration = m.duration(diff);
+
+    return diff <= second 
+        ? '1s' : diff < minute
+        ? `${duration.seconds()}s ago` : diff < hour
+        ? `${duration.minutes()}m ago` : diff < hour * 4
+        ? `${duration.hours()}h ago` : diff < day
+        ? `At ${date.format('h:m A')}` : now.year() === date.year()
+        ? date.format('MMM D, h:m A') : date.format('MMM D YYYY, h:m A');
+}
+
+module.exports = {tweetTime, dmTime};

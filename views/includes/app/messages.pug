@@ -2,7 +2,7 @@ mixin messageHTML(userClass, {created_timestamp, sender, text})
     li(class=userClass)
         .app--avatar(style=`background-image: url(${sender.profile_image_url_https})`)
         p.app--message--text= text
-        p.app--message--timestamp= timestamp
+        p.app--message--timestamp= created_timestamp
 
 each conversation in conversations
     li

@@ -1,5 +1,5 @@
 const R = require('ramda');
-const tweetTime = require('./tweet-time');
+const {tweetTime, dmTime} = require('./tweet-time');
 
 const dotPath = R.useWith(R.path, [R.split('.')]);
 const deepPath = R.useWith(R.juxt, [R.map(dotPath)]);
@@ -30,7 +30,7 @@ const findContact = user => R.pipe(
 );
 
 const specMessage = (users, self) => ({
-    created_timestamp: R.pipe(R.prop('created_timestamp'), parseInt, tweetTime),
+    created_timestamp: R.pipe(R.prop('created_timestamp'), parseInt, dmTime),
     recipient: R.pipe(R.path(['message_create', 'target', 'recipient_id']), findUser(R.prop('data', users))),
     sender: R.pipe(R.path(['message_create', 'sender_id']), findUser(R.prop('data', users))),
     isSenderUser: R.pipe(R.path(['message_create', 'sender_id']), R.equals(self.id_str)),
