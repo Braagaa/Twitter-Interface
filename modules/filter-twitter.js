@@ -7,7 +7,6 @@ const deepPath = R.useWith(R.juxt, [R.map(dotPath)]);
 const makeImagesBigger = R.replace(/_normal./, '_bigger.');
 const appendAt = R.pipe(R.prepend('@'), R.join(''));
 const findUser = R.curry((users, id) => R.find(R.propEq('id_str', id), users));
-const getFriendsCount = R.path(['data', 'friends_count']);
 
 const evolvedTweet = {
     created_at: tweetTime,
@@ -90,4 +89,4 @@ const checkMessages = (messages, users, self) => R.pipe(
     //R.map(R.assoc('user', self.data))
 )(messages);
 
-module.exports = {checkTweets, checkFriends, checkMessages, getFriendsCount, getIdsFromMessages};
+module.exports = {checkTweets, checkFriends, checkMessages, getIdsFromMessages};

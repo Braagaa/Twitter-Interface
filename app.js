@@ -7,7 +7,6 @@ const {
     checkTweets, 
     checkFriends,
     checkMessages,
-    getFriendsCount,
     getIdsFromMessages
 } = require('./modules/filter-twitter');
 
@@ -46,11 +45,10 @@ app.get('/', async (req, res) => {
 
     const interface = {
         tweets: checkTweets(tweets),
-        friends_count: getFriendsCount(self),
         friends: checkFriends(friends),
+        user: self.data,
         conversations: checkMessages(messages, users, self)
     }
-
     res.render('index', interface);
 });
 
