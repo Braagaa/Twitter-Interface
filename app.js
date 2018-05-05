@@ -1,5 +1,7 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const twit = require('twit');
+const {validateTweetText} = require('./modules/validate');
 const {join} = require('path');
 const config = require('./config');
 
@@ -7,7 +9,8 @@ const {
     checkTweets, 
     checkFriends,
     checkMessages,
-    getIdsFromMessages
+    getIdsFromMessages,
+    checkPostTweet
 } = require('./modules/filter-twitter');
 
 const app = express();
@@ -31,6 +34,7 @@ app.set('view engine', 'pug');
 app.set('port', process.env.PORT || 3000);
 
 app.use(express.static(join(__dirname, 'public')));
+app.use(bodyParser.json());
 
 app.get('/', async (req, res) => {
     const getTweets = T.get('statuses/user_timeline', tweetsOptions);
@@ -50,6 +54,14 @@ app.get('/', async (req, res) => {
         conversations: checkMessages(messages, users, self)
     }
     res.render('index', interface);
+});
+
+app.post('/post-tweet', async ({body: {status = ''}}, res) => {
+    if (validateTweetText(status)) {
+        const tweet = await T.post('statuses/update', {status});
+        return res.json(checkPostTweet(tweet));
+    }
+    res.json({secret: 'bitch'});
 });
 
 app.listen(app.get('port'));
