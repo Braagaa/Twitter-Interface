@@ -1,4 +1,5 @@
 {
+    const body = document.querySelector('body');
     const formTweet = document.querySelector('.app--tweet form');
     const textareaTweet = document.getElementById('tweet-textarea');
     const tweetChar = document.getElementById('tweet-char');
@@ -7,8 +8,16 @@
     
     const respJSON = res => res.json();
     const style = elm => (prop, value) => elm.style[prop] = value;
+    const querySelector = query => elm => elm.querySelector(query);
+    const appendChild = parent => child => parent.appendChild(child);
     const insertAdjacentHTML = (elm, position) => text => elm.insertAdjacentHTML(position, text);
+    const addEventListener = (type, listener) => elm => elm.addEventListener(type, listener);
     const {parseTweet} = twttr.txt;
+
+    const checkIfError = obj => {
+        if (obj.error) throw obj.error;
+        return obj;
+    };
     
     const replySVG = `
         <svg viewBox="0 0 38 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" xml:space="preserve">
@@ -56,6 +65,29 @@
             </li>`;
     }
 
+    const createModalError = ({message}) => {
+        const modal = document.createElement('div');
+        const modalOverlay = document.createElement('div');
+        const modalContent = document.createElement('div');
+        const modalMessage = document.createElement('h2');
+        const button = document.createElement('button');
+
+        modal.id = 'modal';
+        modalOverlay.className = 'modal--overlay';
+        modalContent.className = 'modal--content';
+        modalMessage.className = 'modal--message';
+        modalMessage.textContent = message;
+        button.className = 'button-primary';
+        button.textContent = 'Close';
+
+        modal.appendChild(modalOverlay);
+        modal.appendChild(modalContent);
+        modalContent.appendChild(modalMessage);
+        modalContent.appendChild(button);
+
+        return modal;
+    }
+
     const buttonActivity = (opacity, disabled) => button => {
         const styleButton = style(button);
         styleButton('opacity', opacity);
@@ -74,6 +106,22 @@
 
     tweetChar.textContent = maxLength;
 
+    const closeModal = function(e) {
+        const modal = document.getElementById('modal');
+        
+        body.removeChild(modal);
+        buttonEnabled(tweetButton);
+    }
+
+    const failedPost = error => {
+        return Promise.resolve(error)
+            .then(createModalError)
+            .then(appendChild(body))
+            .then(querySelector('button'))
+            .then(addEventListener('click', closeModal))
+            .catch(console.log);
+    };
+
     formTweet.addEventListener('submit', e => {
         e.preventDefault();
         buttonDisabled(tweetButton);
@@ -84,10 +132,11 @@
             body: JSON.stringify({status: textareaTweet.value})
         })
         .then(respJSON)
+        .then(checkIfError)
         .then(tweetItemHTML)
         .then(insertAdjacentHTML(tweetsList, 'afterbegin'))
-        .catch(err => console.log(err.message))
-        .finally(buttonEnabled.bind(null, tweetButton))
+        .then(buttonEnabled.bind(null, tweetButton))
+        .catch(failedPost)
         .finally(postReset.bind(null, textareaTweet, tweetChar))
     });
 
