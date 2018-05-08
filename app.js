@@ -10,6 +10,7 @@ const config = require('./config');
 const {
     checkTweets, 
     checkFriends,
+    checkSelf,
     checkMessages,
     getIdsFromMessages,
     checkPostTweet
@@ -55,7 +56,7 @@ app.get('/', async (req, res, next) => {
         const interface = {
             tweets: checkTweets(tweets),
             friends: checkFriends(friends),
-            user: self.data,
+            user: checkSelf(self),
             conversations: checkMessages(messages, users, self)
         }
 
