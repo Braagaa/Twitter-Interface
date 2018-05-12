@@ -80,7 +80,8 @@
 
         modal.id = 'modal';
         modalOverlay.className = 'modal--overlay';
-        modalContent.className = 'modal--content';
+        modalContent.classList.add('modal--content');
+        modalContent.classList.add('modal--open');
         modalMessage.className = 'modal--message';
         modalMessage.textContent = message;
         button.className = 'button-primary';
@@ -120,9 +121,13 @@
 
     const closeModal = function(e) {
         const modal = document.getElementById('modal');
-        
-        body.removeChild(modal);
-        buttonEnabled(tweetButton);
+        const modalEffect = document.querySelector('.modal--content');
+        modalEffect.classList.remove('modal--open');
+        modalEffect.classList.add('modal--close');
+        setTimeout(() => {
+            body.removeChild(modal);
+            buttonEnabled(tweetButton);
+        }, 300);
     }
 
     const friendStatus = (url, text) => e => {
