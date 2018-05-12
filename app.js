@@ -13,7 +13,8 @@ const {
     checkSelf,
     checkMessages,
     getIdsFromMessages,
-    checkPostTweet
+    checkPostTweet,
+    checkScreenName
 } = require('./modules/filter-twitter');
 
 const app = express();
@@ -45,21 +46,20 @@ app.get('/', async (req, res, next) => {
         const getFriends = T.get('friends/list', friendsOptions);
         const getMessages = T.get('direct_messages/events/list');
         const getSelf = T.get('account/verify_credentials');
-
+        
         const [tweets, friends, messages, self] = await Promise
             .all([getTweets, getFriends, getMessages, getSelf])
             .then(R.forEach(checkIfError))
         
         const users = await T.get('users/lookup', {user_id: getIdsFromMessages(messages)})
             .then(checkIfError);
-
+        
         const interface = {
             tweets: checkTweets(tweets),
             friends: checkFriends(friends),
             user: checkSelf(self),
             conversations: checkMessages(messages, users, self)
         }
-
         res.render('index', interface);
     } catch(e) {
         next(e);
@@ -67,7 +67,6 @@ app.get('/', async (req, res, next) => {
 });
 
 app.post('/post-tweet', async ({body: {status = ''}}, res) => {
-    debugger;
     if (validateTweetText(status)) {
         try {
             const tweet = await T.post('statuses/update', {status})
@@ -75,11 +74,37 @@ app.post('/post-tweet', async ({body: {status = ''}}, res) => {
             return res.json(checkPostTweet(tweet));
         } catch(e) {
             errorLogger.error(e);
-            res.json({error: {message: 'Could not post your tweet at this time.'}});
+            res.status(500);
+            res.json({message: 'Could not post your tweet at this time.'});
         }
     }
+    
+    res.status(500);
+    res.json({message: 'Invalid Tweet!'});
+});
 
-    res.json({error: {message: 'Invalid Tweet!'}});
+app.post('/unfollow', async ({body: {screenName}}, res) => {
+    try {
+        const unfollower = await T.post('friendships/destroy', {screen_name: checkScreenName(screenName)})
+            .then(checkIfError);
+        res.json(unfollower);
+    } catch(e) {
+        errorLogger.error(e);
+        res.status(500);
+        res.json({message: `Could not unfollow ${screenName} at this time.`});
+    }
+});
+
+app.post('/follow', async ({body: {screenName}}, res) => {
+    try {
+        const friend = await T.post('friendships/create', {screen_name: checkScreenName(screenName), follow: true})
+            .then(checkIfError);
+        res.json(friend);
+    } catch(e) {
+        errorLogger.error(e);
+        res.status(500);
+        res.json({message: `Could not follow ${screenName} at this time.`});
+    }
 });
 
 app.use((err, req, res, next) => {

@@ -75,6 +75,8 @@ const checkSelf = R.pipe(
     R.evolve(evolvedFriend)
 );
 
+const checkScreenName = R.replace('@', '');
+
 const checkPostTweet = R.pipe(
     R.prop('data'), 
     checkTweet
@@ -99,4 +101,4 @@ const checkMessages = (messages, users, self) => R.pipe(
     //R.map(R.assoc('user', self.data))
 )(messages);
 
-module.exports = {checkTweets, checkFriends, checkSelf, checkMessages, getIdsFromMessages, checkPostTweet};
+module.exports = {checkTweets, checkFriends, checkSelf, checkMessages, getIdsFromMessages, checkPostTweet, checkScreenName};

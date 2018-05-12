@@ -11,6 +11,9 @@ const validateTweetText = R.pipe(
     R.prop('valid')
 );
 
-const checkIfError = R.when(R.path(['data', 'errors']), throwError);
+const checkIfError = R.when(
+    R.either(R.path(['data', 'errors']), R.propSatisfies(R.isNil, 'resp')), 
+    throwError
+);
 
 module.exports = {validateTweetText, checkIfError};

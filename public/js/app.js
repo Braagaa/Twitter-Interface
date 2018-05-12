@@ -5,18 +5,24 @@
     const tweetChar = document.getElementById('tweet-char');
     const tweetButton = document.querySelector('.app--tweet .button-primary');
     const tweetsList = document.querySelector('.app--tweet--list');
+    const followerButtons = document.querySelectorAll('.app--user--list .button');
     
+    const always = elm => whatever => elm;
     const respJSON = res => res.json();
     const style = elm => (prop, value) => elm.style[prop] = value;
     const querySelector = query => elm => elm.querySelector(query);
     const appendChild = parent => child => parent.appendChild(child);
     const insertAdjacentHTML = (elm, position) => text => elm.insertAdjacentHTML(position, text);
     const addEventListener = (type, listener) => elm => elm.addEventListener(type, listener);
+    const removeEventListener = (type, listener) => elm => elm.removeEventListener(type, listener);
     const {parseTweet} = twttr.txt;
 
-    const checkIfError = obj => {
-        if (obj.error) throw obj.error;
-        return obj;
+    const reThrow = fn => arg => {
+        throw fn(arg);
+    };
+    const checkResponse = res => {
+        if (!res.ok) throw res;
+        return res;
     };
     
     const replySVG = `
@@ -101,6 +107,12 @@
         countElm.textContent = count;
     }
 
+    const changeFollowerStyle = text => elm => {
+        elm.classList.toggle('button-text');
+        elm.textContent = text;
+        return elm;
+    };
+
     const maxLength = twttr.txt.configs.defaults.maxWeightedTweetLength;
     const postReset = postActivity('', maxLength);
 
@@ -113,8 +125,40 @@
         buttonEnabled(tweetButton);
     }
 
-    const failedPost = error => {
-        return Promise.resolve(error)
+    const friendStatus = (url, text) => e => {
+        const a = e.target;
+        const ancestor = a.parentElement.parentElement;
+        const screenName = ancestor.querySelector('p').textContent;
+        const changeFollower = changeFollowerStyle(text);
+
+        const oldCallback = text === 'unfollow' ? followFriend : unfollowFriend;
+        const newCallback = text !== 'unfollow' ? followFriend : unfollowFriend;
+        const removeListener = removeEventListener('click', oldCallback);
+        const addNewListener = addEventListener('click', newCallback);
+        const addOldListener = addEventListener('click', oldCallback);
+
+        e.preventDefault();
+        removeListener(a);
+
+        fetch(url, {
+            method: 'post',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({screenName})
+        })
+        .then(checkResponse)
+        .then(respJSON)
+        .then(changeFollower.bind(null, a))
+        .then(addNewListener.bind(null, a))
+        .catch(reThrow(failedPost))
+        .catch(addOldListener.bind(null, a));
+    };
+    const unfollowFriend = friendStatus('/unfollow', 'follow');
+    const followFriend = friendStatus('/follow', 'unfollow');
+    followerButtons.forEach(addEventListener('click', unfollowFriend));
+
+    const failedPost = res => {
+        return Promise.resolve(res)
+            .then(respJSON)
             .then(createModalError)
             .then(appendChild(body))
             .then(querySelector('button'))
@@ -131,8 +175,8 @@
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({status: textareaTweet.value})
         })
+        .then(checkResponse)
         .then(respJSON)
-        .then(checkIfError)
         .then(tweetItemHTML)
         .then(insertAdjacentHTML(tweetsList, 'afterbegin'))
         .then(buttonEnabled.bind(null, tweetButton))
