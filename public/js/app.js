@@ -15,6 +15,7 @@
     const insertAdjacentHTML = (elm, position) => text => elm.insertAdjacentHTML(position, text);
     const addEventListener = (type, listener) => elm => elm.addEventListener(type, listener);
     const removeEventListener = (type, listener) => elm => elm.removeEventListener(type, listener);
+
     const {parseTweet} = twttr.txt;
 
     const reThrow = fn => arg => {
@@ -108,6 +109,13 @@
         countElm.textContent = count;
     }
 
+    const tweetStatus = (textareaStatus, buttonStatus) => (textarea, button) => {
+        textarea.disabled = textareaStatus;
+        buttonStatus(tweetButton);
+    }
+    const enableTweet = tweetStatus(false, buttonEnabled);
+    const disableTweet = tweetStatus(true, buttonDisabled);
+
     const changeFollowerStyle = text => elm => {
         elm.classList.toggle('button-text');
         elm.textContent = text;
@@ -124,9 +132,10 @@
         const modalEffect = document.querySelector('.modal--content');
         modalEffect.classList.remove('modal--open');
         modalEffect.classList.add('modal--close');
+
         setTimeout(() => {
             body.removeChild(modal);
-            buttonEnabled(tweetButton);
+            enableTweet(textareaTweet, tweetButton);
         }, 300);
     }
 
@@ -168,12 +177,13 @@
             .then(appendChild(body))
             .then(querySelector('button'))
             .then(addEventListener('click', closeModal))
+            .then(disableTweet.bind(null, textareaTweet, tweetButton))
             .catch(console.log);
     };
 
     formTweet.addEventListener('submit', e => {
         e.preventDefault();
-        buttonDisabled(tweetButton);
+        disableTweet(textareaTweet, tweetButton);
   
         fetch('/post-tweet', {
             method: 'post',
@@ -184,7 +194,7 @@
         .then(respJSON)
         .then(tweetItemHTML)
         .then(insertAdjacentHTML(tweetsList, 'afterbegin'))
-        .then(buttonEnabled.bind(null, tweetButton))
+        .then(enableTweet.bind(null, textareaTweet, tweetButton))
         .catch(failedPost)
         .finally(postReset.bind(null, textareaTweet, tweetChar))
     });
