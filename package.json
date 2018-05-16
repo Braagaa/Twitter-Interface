@@ -1,9 +1,10 @@
 {
   "name": "twitter_interface",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "A Twitter interface that renders information to the user.",
   "main": "app.js",
   "scripts": {
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

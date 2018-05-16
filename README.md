@@ -24,4 +24,4 @@ Make sure that object is exported out of __config.js__.
 Running the App
 ---------------
 
-Once the configuration is set up, you can run it locally at port 3000.
+Once the configuration is set up, you can run it locally at port 3000 with __npm start__.
