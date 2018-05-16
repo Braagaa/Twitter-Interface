@@ -22,6 +22,7 @@
     const tweetButton = document.querySelector('.app--tweet .button-primary');
     const tweetsList = document.querySelector('.app--tweet--list');
     const followerButtons = document.querySelectorAll('.app--user--list .button');
+    const numberOfFriends = document.querySelector('.app--section--heading strong');
     
     //helper functions
     
@@ -385,6 +386,55 @@
             enableTweet(textareaTweet, tweetButton);
         }, 300);
     }
+    
+    /**
+     * Changes friends count in the UI.
+     *
+     * @param {DOM} count - The element that has a number on it
+     * @param {callback} addOrSubtract - A callback that either adds or subtracts the count elements number
+     * @returns {undefined}
+     */
+    const changeNumberOfFriends = (count, addOrSubtract) => {
+        const num2 = parseInt(count.textContent);
+        if (!isNaN(num2))
+            numberOfFriends.textContent = addOrSubtract(num2);
+    };
+
+    /**
+     * Adds 2 numbers together.
+     *
+     * @function
+     * @param {number} num1
+     * @param {number} num2
+     * @returns {numer}
+     */
+    const addNum = num1 => num2 => num1 + num2;
+
+    /**
+     * Subtracts 2 numbers.
+     *
+     * @function
+     * @param {number} num1 - The number subtracted
+     * @param {number} num2 - The number subtracted from
+     * @returns {number}
+     */
+    const subtractNum = num1 => num2 => num2 - num1;
+
+    /**
+     * Curried function of addNum where first param is set as 1.
+     *
+     * @const
+     * @type {function}
+     */
+    const addOne = addNum(1);
+
+    /**
+     * Curried function of subtractNum where first param is set as 1.
+     *
+     * @const
+     * @type {function}
+     */
+    const subtractOne = subtractNum(1);
 
     /**
      * Event listener function used to change a friendship status on the
@@ -394,10 +444,11 @@
      *
      * @param {string} url - Containing the direct URL of the resource
      * @param {string} text - The text used to change the friendship status on the UI
+     * @param {callback} addOrSubtract - Callback used to change friend number count
      * @param {Object} e - Event Object
      * @returns {undefined}
      */
-    const friendStatus = (url, text) => e => {
+    const friendStatus = (url, text, addOrSubtract) => e => {
         const a = e.target;
         const ancestor = a.parentElement.parentElement;
         const screenName = ancestor.querySelector('p').textContent;
@@ -422,6 +473,7 @@
         .then(respJSON)
         .then(changeFollower.bind(null, a))
         .then(addNewListener.bind(null, a))
+        .then(changeNumberOfFriends.bind(null, numberOfFriends, addOrSubtract))
         .catch(reThrow(failedPost))
         .catch(addOldListener.bind(null, a));
     };
@@ -434,7 +486,7 @@
      * @type {function}
      * @see friendStatus
      */
-    const unfollowFriend = friendStatus('/unfollow', 'follow');
+    const unfollowFriend = friendStatus('/unfollow', 'follow', subtractOne);
 
     /**
      * Curried function of friendStatus where url and text params are set
@@ -444,7 +496,7 @@
      * @type {function}
      * @see friendStatus
      */
-    const followFriend = friendStatus('/follow', 'unfollow');
+    const followFriend = friendStatus('/follow', 'unfollow', addOne);
 
     //Attach a click event handler to all friend buttons with the unfollowFriend function
     followerButtons.forEach(addEventListener('click', unfollowFriend));
