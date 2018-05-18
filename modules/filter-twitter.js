@@ -126,7 +126,8 @@ const findContact = user => R.pipe(
     R.nth(0), 
     R.props(['recipient', 'sender']), 
     R.symmetricDifferenceWith(R.eqBy(R.prop('id_str')), [user]),
-    R.head
+    R.head,
+    R.defaultTo(user)
 );
 
 /**
@@ -170,10 +171,10 @@ const specConver = user => ({
  * @returns {boolean}
  */
 const checkIds = R.curry((ids, list) => R.pipe(
-    R.map(deepPath(['recipient.id_str', 'sender.id_str'])),
-    R.map(R.map(R.contains(R.__, ids))), 
-    R.map(R.all(R.equals(true))),
     R.head,
+    deepPath(['recipient.id_str', 'sender.id_str']),
+    R.sort((a,b) => a > b),
+    R.equals(R.__, R.sort((a,b) => a > b, ids)), 
 )(list));
 
 /**

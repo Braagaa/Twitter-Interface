@@ -100,13 +100,14 @@ app.get('/', async (req, res, next) => {
             users = await T.get('users/lookup', {user_id: usersIds})
                 .then(checkIfError);
         }
-
+        
         const render = {
             tweets: checkTweets(tweets),
             friends: checkFriends(friends),
             user: checkSelf(self),
             conversations: checkMessages(messages, users, self)
         }
+
         res.render('index', render);
     } catch(e) {
         next(e);
