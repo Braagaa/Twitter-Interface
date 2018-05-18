@@ -88,14 +88,19 @@ app.get('/', async (req, res, next) => {
         const getFriends = T.get('friends/list', friendsOptions);
         const getMessages = T.get('direct_messages/events/list');
         const getSelf = T.get('account/verify_credentials');
-        
+
         const [tweets, friends, messages, self] = await Promise
             .all([getTweets, getFriends, getMessages, getSelf])
             .then(R.forEach(checkIfError))
+
+        const usersIds = getIdsFromMessages(messages);
+        let users = [];
         
-        const users = await T.get('users/lookup', {user_id: getIdsFromMessages(messages)})
-            .then(checkIfError);
-        
+        if (usersIds !== '') {
+            users = await T.get('users/lookup', {user_id: usersIds})
+                .then(checkIfError);
+        }
+
         const render = {
             tweets: checkTweets(tweets),
             friends: checkFriends(friends),
