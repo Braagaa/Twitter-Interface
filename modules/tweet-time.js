@@ -75,8 +75,8 @@ const dmTime = function(timestamp) {
         ? `${duration.seconds()}s ago` : diff < hour
         ? `${duration.minutes()}m ago` : diff < hour * 4
         ? `${duration.hours()}h ago` : diff < day
-        ? `At ${date.format('h:m A')}` : now.year() === date.year()
-        ? date.format('MMM D, h:m A') : date.format('MMM D YYYY, h:m A');
+        ? `At ${date.format('h:mm A')}` : now.year() === date.year()
+        ? date.format('MMM D, h:mm A') : date.format('MMM D YYYY, h:mm A');
 }
 
 module.exports = {tweetTime, dmTime};
